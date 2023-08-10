@@ -16,7 +16,7 @@ export class AuthService {
         //console.log('eu',usuario);
 
         if(barber === null){
-          throw new HttpException("Usuario não encontrado", HttpStatus.FORBIDDEN);
+          throw new HttpException("Barbeiro não encontrado", HttpStatus.FORBIDDEN);
         }
         
         if(username == barber.login && await bcrypt.compare(password, barber.password)) {
@@ -37,3 +37,4 @@ export class AuthService {
         //return null;
         
       }
+    
