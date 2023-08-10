@@ -4,6 +4,7 @@ import { UpdateBarberDto } from './dto/update-barber.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Barber } from './entities/barber.entity';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class BarbersService {
@@ -40,12 +41,33 @@ export class BarbersService {
         HttpStatus.FORBIDDEN,
       );
     }
+    const saltOrRounds = 10;
+    barbers.name = createBarberDto.name;
+    barbers.surName = createBarberDto.surName;
+    barbers.login = createBarberDto.login;
+    barbers.password = await bcrypt.hash(
+      createBarberDto.password.toString(),
+      saltOrRounds,
+    );
 
-    return 'This action adds a new barber';
+    return (
+      this.repositoryBarbers.save(barbers),
+      new HttpException('Barbeiro cadastrado com sucesso', HttpStatus.CREATED)
+    );
   }
 
   findAll() {
-    return `This action returns all barbers`;
+    return this.repositoryBarbers.find({
+      select: {
+        name: true,
+        surName: true,
+        login: true,
+      },
+    });
+  }
+
+  findOneBy(username: string): Promise<Barber | undefined> {
+    throw new Error('Method not implemented.');
   }
 
   findOne(id: number) {
@@ -57,6 +79,9 @@ export class BarbersService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} barber`;
+    return (
+      this.repositoryBarbers.delete(id),
+      new HttpException('Barbeiro deletado com sucesso', HttpStatus.FORBIDDEN)
+    );
   }
 }
